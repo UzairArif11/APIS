@@ -5,6 +5,9 @@ const Student = require("./models/students");
 const app = express();
 const port = process.env.Port || 8000;
 app.use(express.json()); //required to get json data as output
+const studentRouter = require("./routers/route");
+//3. we need to register our router
+app.use(studentRouter);
 
 //create a new students
 app.post("/students", async (req, res) => {
@@ -32,13 +35,28 @@ app.get("/students/:id", async (req, res) => {
   try {
     const _id = req.params.id;
     const studentData = await Student.findById(_id);
-    res.status(201).send(studentData);
+    return res.status(201).send(studentData);
     if (!req.params.id) {
       return res.status(404).send();
     }
     res.status(200).send(error);
   } catch (error) {
-    res.status(500).send(error);
+    return res.status(500).send(error);
+  }
+});
+
+//update the student by id
+
+app.patch("/students/:id", async (req, res) => {
+  try {
+    const updateStudent = await Student.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true } //show updated data
+    );
+    return res.status(200).send(updateStudent);
+  } catch (error) {
+    return res.status(500).send(error);
   }
 });
 
@@ -50,9 +68,9 @@ app.delete("/students/:id", async (req, res) => {
     if (!req.params.id) {
       return res.status(404).send();
     }
-    res.status(200).send(error);
+    return res.status(200).send(deleteStudent);
   } catch (error) {
-    res.status(500).send(error);
+    return res.status(500).send(error);
   }
 });
 
